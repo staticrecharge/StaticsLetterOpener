@@ -1,8 +1,9 @@
-## Title: Static's Letter Opener 0.0.1
+## Title: Static's Letter Opener 0.0.2
 ## Author: |CFF0000Static_Recharge|r
-## Version: 0.0.1
+## Version: 0.0.2
 ## AddOnVersion: 1
 ## APIVersion: 101047
+## SavedVariables: StaticsLetterOpenerAccountWideVars
 ## Description: Opens master writs and survey letters automatically
 ## IsLibrary: false
 
