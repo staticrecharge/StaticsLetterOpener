@@ -6,7 +6,7 @@
     {
       "label": "copy",
       "type": "shell",
-      "command": "robocopy 'E:\\Documents\\Add-on Dev\\StaticsLetterOpener' 'E:\\Documents\\Elder Scrolls Online\\live\\AddOns\\StaticsLetterOpener' StaticsLetterOpener.addon StaticsLetterOpener.lua  changelog.readme",
+      "command": "robocopy 'E:\\Documents\\Add-on Dev\\StaticsLetterOpener' 'E:\\Documents\\Elder Scrolls Online\\live\\AddOns\\StaticsLetterOpener' Settings.lua StaticsLetterOpener.addon StaticsLetterOpener.lua  changelog.readme",
       "problemMatcher": [],
       "group": {
         "kind": "build",
