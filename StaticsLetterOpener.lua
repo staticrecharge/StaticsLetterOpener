@@ -134,7 +134,7 @@ function LO:Open()
 		else
 			UseItem(bag, slotId)
 		end
-		self:SendToChat(zo_strformat("<<1>> Opened", self.Que[1].link))
+		self:Chat(zo_strformat("<<1>> Opened", self.Que[1].link))
 		table.remove(self.Que, 1)
 	end
 end
@@ -162,30 +162,33 @@ end
 
 
 --[[------------------------------------------------------------------------------------------------
-function LO:SendToChat(inputString, ...)
+function LO:Chat(inputString, ...)
 Inputs:				inputString			- The input string to be formatted and sent to chat.
 							...							- More inputs to be placed on new lines within the same message.
 Outputs:			None
 Description:	Formats text to be sent to the chat box for the user. Only the first line gets the
 							add-on prefix.
 ------------------------------------------------------------------------------------------------]]--
-function LO:SendToChat(inputString, ...)
-	if not self.SV.chatMsgEnabled then return end
-	if inputString == false or inputString == "" then return end
+function LO:Chat(inputString, ...)
+	-- if chat isn't enabled or the string is empty or nil then return
+	if not self.SV.chatMsgEnable or inputString == false or inputString == "" then return end
+
 	local Args = {...}
-	local Output = {}
-	table.insert(Output, zo_strformat("<<1>><<2>><<3>><<4>>", self.chatPrefix, self.chatTextColor, inputString, self.chatSuffix))
+
+	-- Print first line
+	CS:AddMessage(zo_strformat("<<1>><<2>><<3>><<4>>", self.chatPrefix, self.chatTextColor, inputString, self.chatSuffix))
+
+	-- Print subsequent lines if any
 	if #Args > 0 then
 		for i,v in ipairs(Args) do
-		  table.insert(Output, zo_strformat("\n<<1>><<2>><<3>>", self.chatTextColor, v, self.chatSuffix))
+		  CS:AddMessage(zo_strformat("\n<<1>><<2>><<3>>", self.chatTextColor, v, self.chatSuffix))
 		end
 	end
-	CS:AddMessage(table.concat(Output))
 end
 
 
 --[[------------------------------------------------------------------------------------------------
-function function LO:BoolConvert(bool, returnType)
+function LO:BoolConvert(bool, returnType)
 Inputs:				bool 						- input bool to convert
 							returnType 			- how the output should be formated (optional, 1 default)
 Outputs:			string 					- string containing the converted bool, or the input if not a bool
@@ -196,6 +199,8 @@ returnType: 	1 	- "true/false"
 							4		- "positive/negative"
 ------------------------------------------------------------------------------------------------]]--
 function LO:BoolConvert(bool, returnType)
+	if type(bool) ~= "boolean" then return end
+
 	local Responses = {
 		{"true", "false"},
 		{"on", "off"},
@@ -203,14 +208,13 @@ function LO:BoolConvert(bool, returnType)
 		{"positive", "negative"},
 	}
 
-	if type(bool) == "boolean" then
-		if not returnType then returnType = 1 end
-		if bool then
-			return Responses[returnType][1]
-		else
-			return Responses[returnType][2]
-		end
-	end
+  if not returnType then returnType = LIBSTATIC_BOOLTYPE_TF end
+  if bool then
+    return Responses[returnType][1]
+  else
+    return Responses[returnType][2]
+  end
+
 	return bool
 end
 
@@ -224,7 +228,7 @@ Description:	Checks if debugging mode is on and if so, sends the input message t
 function LO:DebugMsg(inputString)
 	if not self.SV.debugMode then return end
 	if inputString == false then return end
-	self:SendToChat("[DEBUG] " .. inputString)
+	self:Chat("[DEBUG] " .. inputString)
 end
 
 
