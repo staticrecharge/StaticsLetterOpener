@@ -98,11 +98,14 @@ Outputs:			None
 Description: 	Adds found items to the Que and starts the opening event.
 ------------------------------------------------------------------------------------------------]]--
 function LO:OnInventorySingleSlotUpdate(eventCode, bagId, slotId, isNewItem, itemSoundCategory, inventoryUpdateReason, stackCountChange)
+	-- If open all is disabled and the item isn't new then exit as there's nothing to do.
 	if not self.SV.openAll and not isNewItem then return end
+
 	local itemData = {
 		id = GetItemId(bagId, slotId),
 		link = GetItemLink(bagId, slotId),
 	}
+
 	if (self.SV.surveys and self.Surveys[itemData.id]) or (self.SV.masterWrits and self.MasterWrits[itemData.id]) then
 		table.insert(self.Que, itemData)
 		self:DebugMsg(zo_strformat("<<1>> Qued", itemData.link))
@@ -181,7 +184,7 @@ function LO:Chat(inputString, ...)
 	-- Print subsequent lines if any
 	if #Args > 0 then
 		for i,v in ipairs(Args) do
-		  CS:AddMessage(zo_strformat("\n<<1>><<2>><<3>>", self.chatTextColor, v, self.chatSuffix))
+		  CS:AddMessage(zo_strformat("<<1>><<2>><<3>>", self.chatTextColor, v, self.chatSuffix))
 		end
 	end
 end
