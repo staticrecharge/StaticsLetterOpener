@@ -14,15 +14,18 @@ local CM = CALLBACK_MANAGER
 
 --[[------------------------------------------------------------------------------------------------
 Settings Class Initialization
-Settings    - Object containing all functions, tables, variables,and constants.
-  |-  Parent    - Reference to parent object.
+Settings    																			- Object containing all functions, tables, variables,and constants.
+├─ :CreateSettingsPanel()                         - Creates and registers the settings panel with LibAddonMenu.
+├─ :Update()   																		- Updates the settings panel in LibAddonMenu.
+├─ :Changed()   																	- Sends a message the the settings have been reset.
+└─ :GetParent()                										- Returns the parent object of this object for reference to parent variables.
 ------------------------------------------------------------------------------------------------]]--
 local Settings = ZO_InitializingObject:Subclass()
 
 
 --[[------------------------------------------------------------------------------------------------
 Settings:Initialize(Parent)
-Inputs:				Parent 					- The parent object containing other required information.  
+Inputs:				Parent 															- The parent object containing other required information.  
 Outputs:			None
 Description:	Initializes all of the variables and tables.
 ------------------------------------------------------------------------------------------------]]--
@@ -103,23 +106,23 @@ function Settings:CreateSettingsPanel()
 	optionsData[i] = {
 		type = "checkbox",
     name = "Chat Messages",
-    getFunc = function() return Parent.SV.chatMsgEnabled end,
-    setFunc = function(value) Parent.SV.chatMsgEnabled = value end,
+    getFunc = function() return Parent.SV.chatEnabled end,
+    setFunc = function(value) Parent.SV.chatEnabled = value Parent.Chat:SetChatEnabled(value) end,
     tooltip = "Disables ALL chat messages from this add-on.",
     width = "half",
-		default = Parent.Defaults.chatMsgEnabled,
+		default = Parent.Defaults.chatEnabled,
 	}
 
 	i = i + 1
 	optionsData[i] = {
 		type = "checkbox",
     name = "Debugging Mode",
-    getFunc = function() return Parent.SV.debugMode end,
-    setFunc = function(value) Parent.SV.debugMode = value end,
+    getFunc = function() return Parent.SV.debugEnabled end,
+    setFunc = function(value) Parent.SV.debugEnabled = value Parent.Chat:SetDebugEnabled(value) end,
     tooltip = "Turns on extra messages for the purposes of debugging. Not intended for normal use. Must have chat messages enabled.",
     width = "half",
-		default = Parent.Defaults.debugMode,
-		disabled = not Parent.SV.chatMsgEnabled,
+		default = Parent.Defaults.debugEnabled,
+		disabled = not Parent.SV.chatEnabled,
 	}
 
 	local function LAMPanelCreated(panel)
@@ -154,22 +157,30 @@ end
 
 
 --[[------------------------------------------------------------------------------------------------
+Settings:Changed()
+Inputs:				None
+Outputs:			None
+Description:	Sends a message the the settings have been reset.
+------------------------------------------------------------------------------------------------]]--
+function Settings:Changed()
+	local Parent = self:GetParent()
+	if not Parent.SV.settingsChanged then return end
+	Parent.SV.settingsChanged = false
+	Parent.Chat:Msg("Settings have been reset, please ensure they are to your preference.")
+end
+
+
+--[[------------------------------------------------------------------------------------------------
 Settings:GetParent()
 Inputs:				None
-Outputs:			Parent          - The parent object of this object.
+Outputs:			Parent          										- The parent object of this object.
 Description:	Returns the parent object of this object for reference to parent variables.
 ------------------------------------------------------------------------------------------------]]--
 function Settings:GetParent()
   return self.Parent
 end
 
-
 --[[------------------------------------------------------------------------------------------------
-StaticsLetterOpenerInitSettings(Parent)
-Inputs:				Parent          - The parent object of the object to be created.
-Outputs:			Settings        - The new object created.
-Description:	Global function to create a new instance of this object.
+Global template assignment
 ------------------------------------------------------------------------------------------------]]--
-function StaticsLetterOpenerInitSettings(Parent)
-	return Settings:New(Parent)
-end
+StaticsLetterOpener.Settings = Settings
