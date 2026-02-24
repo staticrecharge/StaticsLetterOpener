@@ -82,11 +82,10 @@ function StaticsLetterOpener:Initialize()
 		chatEnabled = self.SV.chatEnabled,
 		debugEnabled = self.SV.debugEnabled,
 	}
-	self.Chat = LibStatic.Chat:New(Options)
+	self.Chat = LibStatic.CHAT:New(Options)
 
 	-- Child initilization
-	self.Settings = self.Settings:New(self)
-	self.Settings:Changed()
+	self.Settings = self.SETTINGS:New(self)
 	
 	-- Event Registrations
 	EM:RegisterForEvent(self.addonName, EVENT_INVENTORY_SINGLE_SLOT_UPDATE, function(...) self:OnInventorySingleSlotUpdate(...) end)
@@ -157,12 +156,17 @@ function StaticsLetterOpener:Open()
 	end
 	if GetSlotCooldownInfo(1) == 0 then
 		local slotId = self:GetInventoryIndex()
-		if IsProtectedFunction("UseItem") then
-			CallSecureProtected("UseItem", bag, slotId)
+		if slotId then
+			self.Chat:Debug(zo_strformat("Item Found: slotId: <<1>>, bag: <<2>>, <<3>>", slotId, bag, GetItemLink(bag, slotId)))
+			if IsProtectedFunction("UseItem") then
+				CallSecureProtected("UseItem", bag, slotId)
+			else
+				UseItem(bag, slotId)
+			end
+			self.Chat:Msg(zo_strformat("<<1>> Opened", self.Que[1].link))
 		else
-			UseItem(bag, slotId)
+			self.Chat:Msg(zo_strformat("<<1>> Not found", self.Que[1].link))
 		end
-		self.Chat:Msg(zo_strformat("<<1>> Opened", self.Que[1].link))
 		table.remove(self.Que, 1)
 	end
 end
@@ -171,7 +175,7 @@ end
 --[[------------------------------------------------------------------------------------------------
 StaticsLetterOpener:GetInventoryIndex()
 Inputs:				None
-Outputs:			slot 																- The slot containing the next item in the Que
+Outputs:			slotIndex 													- The slot containing the next item in the Que
 Description:	Searches for and returns the slot number of the next item in the Que.
 ------------------------------------------------------------------------------------------------]]--
 function StaticsLetterOpener:GetInventoryIndex()
@@ -179,11 +183,10 @@ function StaticsLetterOpener:GetInventoryIndex()
 	local bagData = SHARED_INVENTORY:GetOrCreateBagCache(bag)
 	if not ZO_IsTableEmpty(bagData) then
 		local queOne = self.Que[1]
-		for index, data in ipairs(bagData) do
-			local item = data.uniqueId
-			if HasItemInSlot(bag, slot)	and item == queOne.id then
+		for slotIndex, slotData in pairs(bagData) do
+			if HasItemInSlot(bag, slotIndex) and slotData.lnk == queOne.link then
 				self.Chat:Debug(zo_strformat("<<1>> Found", queOne.link))
-				return slot
+				return slotIndex
 			end
 		end
 	end

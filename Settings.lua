@@ -10,15 +10,17 @@ Libraries and Aliases
 ------------------------------------------------------------------------------------------------]]--
 local LAM2 = LibAddonMenu2
 local CM = CALLBACK_MANAGER
+EM = EVENT_MANAGER
 
 
 --[[------------------------------------------------------------------------------------------------
 Settings Class Initialization
-Settings    																			- Object containing all functions, tables, variables,and constants.
-├─ :CreateSettingsPanel()                         - Creates and registers the settings panel with LibAddonMenu.
-├─ :Update()   																		- Updates the settings panel in LibAddonMenu.
-├─ :Changed()   																	- Sends a message the the settings have been reset.
-└─ :GetParent()                										- Returns the parent object of this object for reference to parent variables.
+Settings    													            - Parent object containing all functions, tables, variables, constants and other data managers.
+├─ :IsInitialized()                               - Returns true if the object has been successfully initialized.
+├─ :CreateSettingsPanel()													- Creates and registers the settings panel with LibAddonMenu.
+├─ :Update()                											- Updates the settings panel in LibAddonMenu.
+├─ :Changed()               							- Fired when the player first loads in after a settings reset is forced.
+└─ :GetParent()                                   - Returns the parent object of this object for reference to parent variables.
 ------------------------------------------------------------------------------------------------]]--
 local Settings = ZO_InitializingObject:Subclass()
 
@@ -31,7 +33,25 @@ Description:	Initializes all of the variables and tables.
 ------------------------------------------------------------------------------------------------]]--
 function Settings:Initialize(Parent)
   self.Parent = Parent
+  self.eventSpace = "SLOSettings"
+
   self:CreateSettingsPanel()
+
+  -- Event Registrations
+	EM:RegisterForEvent(self.eventSpace, EVENT_PLAYER_ACTIVATED, function(...) self:Changed() end)
+
+	self.initialized = true
+end
+
+
+--[[------------------------------------------------------------------------------------------------
+Settings:IsInitialized()
+Inputs:				None
+Outputs:			initialized                         - bool for object initialized state
+Description:	Returns true if the object has been successfully initialized.
+------------------------------------------------------------------------------------------------]]--
+function Settings:IsInitialized()
+  return self.initialized
 end
 
 
@@ -183,4 +203,4 @@ end
 --[[------------------------------------------------------------------------------------------------
 Global template assignment
 ------------------------------------------------------------------------------------------------]]--
-StaticsLetterOpener.Settings = Settings
+StaticsLetterOpener.SETTINGS = Settings
