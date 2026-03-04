@@ -26,7 +26,7 @@ StaticsLetterOpener = {}
 
 
 --[[------------------------------------------------------------------------------------------------
-LO:Initialize()
+StaticsLetterOpener:Initialize()
 Inputs:				None
 Outputs:			None
 Description:	Initializes all of the variables, object managers, slash commands and main event
@@ -184,7 +184,7 @@ function StaticsLetterOpener:GetInventoryIndex()
 	if not ZO_IsTableEmpty(bagData) then
 		local queOne = self.Que[1]
 		for slotIndex, slotData in pairs(bagData) do
-			if HasItemInSlot(bag, slotIndex) and slotData.lnk == queOne.link then
+			if HasItemInSlot(bag, slotIndex) and GetItemId(bag, slotIndex) == queOne.id then
 				self.Chat:Debug(zo_strformat("<<1>> Found", queOne.link))
 				return slotIndex
 			end
