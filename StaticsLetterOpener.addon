@@ -2,9 +2,9 @@
 ## Author: |CFF0000Static_Recharge|r
 ## Version: 1.0.1
 ## AddOnVersion: 1
-## APIVersion: 101048
+## APIVersion: 101049
 ## SavedVariables: StaticsLetterOpenerAccountWideVars
-## DependsOn: LibAddonMenu-2.0>=41 LibStatic>=1
+## DependsOn: LibAddonMenu-2.0>=41 LibStatic>=2
 ## Description: Opens master writs and survey letters automatically
 ## IsLibrary: false
 

@@ -1,7 +1,7 @@
 --[[------------------------------------------------------------------------------------------------
 Title:					Static's Letter Opener
 Author:					Static_Recharge
-Version:			  1.0.1
+Version:			  1.1.0
 Description:		Opens master writs and survey letters automatically
 ------------------------------------------------------------------------------------------------]]--
 
@@ -10,6 +10,35 @@ Description:		Opens master writs and survey letters automatically
 Libraries and Aliases
 ------------------------------------------------------------------------------------------------]]--
 local EM = EVENT_MANAGER
+
+
+--[[------------------------------------------------------------------------------------------------
+Static Values
+------------------------------------------------------------------------------------------------]]--
+local Containers = {
+	["surveys"] = {
+		[219849] = true,			-- blacksmithing
+		[219850] = true,			-- clothing
+		[219851] = true,			-- woodworking
+		[219852] = true,			-- enchanting
+		[219853] = true,			-- alchemy
+		[219854] = true,			-- jewelry
+	},
+
+	["masterWrits"] = {
+		[217917] = true,			-- blacksmithing
+		[217918] = true,			-- clothing
+		[217919] = true,			-- woodworking
+		[217920] = true,			-- enchanting
+		[217921] = true,			-- provisioning
+		[217922] = true,			-- alchemy
+		[217923] = true,			-- jewelry
+	},
+
+	["maps"] = {
+		[224681] = true, 			-- treasure map
+	},
+}
 
 
 --[[------------------------------------------------------------------------------------------------
@@ -35,34 +64,16 @@ Description:	Initializes all of the variables, object managers, slash commands a
 function StaticsLetterOpener:Initialize()
 	-- Static definitions
 	self.addonName = "StaticsLetterOpener"
-	self.addonVersion = "1.0.1"
+	self.addonVersion = "1.1.0"
 	self.author = "|CFF0000Static_Recharge|r"
 	self.varsVersion = 1
-
-	self.Surveys = {
-		[219849] = true,			-- blacksmithing
-		[219850] = true,			-- clothing
-		[219851] = true,			-- woodworking
-		[219852] = true,			-- enchanting
-		[219853] = true,			-- alchemy
-		[219854] = true,			-- jewelry
-	}
-
-	self.MasterWrits = {
-		[217917] = true,			-- blacksmithing
-		[217918] = true,			-- clothing
-		[217919] = true,			-- woodworking
-		[217920] = true,			-- enchanting
-		[217921] = true,			-- provisioning
-		[217922] = true,			-- alchemy
-		[217923] = true,			-- jewelry
-	}
 
 	self.Defaults = {
 		surveys = true,
 		masterWrits = false,
-		chatEnabled = true,
+		maps = false,
 		openAll = false,
+		chatEnabled = true,
 		debugEnabled = false,
 		settingsChanged = true,
 	}
@@ -82,10 +93,10 @@ function StaticsLetterOpener:Initialize()
 		chatEnabled = self.SV.chatEnabled,
 		debugEnabled = self.SV.debugEnabled,
 	}
-	self.Chat = LibStatic.CHAT:New(Options)
+	self.Chat = LibStatic:ChatNew(Options)
 
-	-- Child initilization
-	self.Settings = self.SETTINGS:New(self)
+	-- Module initilization
+	self.Settings:Initialize(self)
 	
 	-- Event Registrations
 	EM:RegisterForEvent(self.addonName, EVENT_INVENTORY_SINGLE_SLOT_UPDATE, function(...) self:OnInventorySingleSlotUpdate(...) end)
@@ -130,12 +141,15 @@ function StaticsLetterOpener:OnInventorySingleSlotUpdate(eventCode, bagId, slotI
 		link = GetItemLink(bagId, slotId),
 	}
 
-	if (self.SV.surveys and self.Surveys[itemData.id]) or (self.SV.masterWrits and self.MasterWrits[itemData.id]) then
-		table.insert(self.Que, itemData)
-		self.Chat:Debug(zo_strformat("<<1>> Qued", itemData.link))
-		if not self.started then
-			EM:RegisterForUpdate(self.addonName, 500, function() self:Open() end)
-			self.started = true
+	-- search through containers and ids for a match
+	for category, container in pairs(Containers) do
+		if container[itemData.id] and self.SV[category] then
+			table.insert(self.Que, itemData)
+			self.Chat:Debug(zo_strformat("<<1>> Qued", itemData.link))
+			if not self.started then
+				EM:RegisterForUpdate(self.addonName, 500, function() self:Open() end)
+				self.started = true
+			end
 		end
 	end
 end

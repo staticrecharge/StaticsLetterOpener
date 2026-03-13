@@ -22,7 +22,7 @@ Settings    													            - Parent object containing all functions, t
 ├─ :Changed()               							- Fired when the player first loads in after a settings reset is forced.
 └─ :GetParent()                                   - Returns the parent object of this object for reference to parent variables.
 ------------------------------------------------------------------------------------------------]]--
-local Settings = ZO_InitializingObject:Subclass()
+local Settings = {}
 
 
 --[[------------------------------------------------------------------------------------------------
@@ -103,6 +103,16 @@ function Settings:CreateSettingsPanel()
     setFunc = function(value) Parent.SV.masterWrits = value end,
     width = "full",
 		default = Parent.Defaults.masterWrits,
+	}
+
+	i = i + 1
+  optionsData[i] = {
+		type = "checkbox",
+    name = "Open Maps",
+    getFunc = function() return Parent.SV.maps end,
+    setFunc = function(value) Parent.SV.maps = value end,
+    width = "full",
+		default = Parent.Defaults.maps,
 	}
 
   i = i + 1
@@ -203,4 +213,4 @@ end
 --[[------------------------------------------------------------------------------------------------
 Global template assignment
 ------------------------------------------------------------------------------------------------]]--
-StaticsLetterOpener.SETTINGS = Settings
+StaticsLetterOpener.Settings = Settings
